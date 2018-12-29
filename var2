@@ -1,0 +1,63 @@
+
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.NonReadableChannelException;
+import java.nio.channels.ReadableByteChannel;
+
+/**
+ * Кдасс предназначен для скачивания файла
+ * по ссылке в файл на диске компьютера;
+ */
+public class asd extends Thread {
+    private String sourceToLink;
+    private String pathToFile;
+
+    asd(String sourceToMusic, String path) throws MalformedURLException {
+        this.sourceToLink = sourceToMusic;
+        this.pathToFile = path;
+    }
+
+    @Override
+    public void run() {
+        try {
+            downloadUsingNIO(sourceToLink, pathToFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Метод скачивает файл по ссылке sourceToLink в файл на диске компьютера pathToFile ;
+     *
+     * @param sourceToLink ссылка на файл;
+     * @param pathToFile   путь к файлу, в который будет скачан файл;
+     * @throws IOException                 ошибка ввода-вывода;
+     * @throws NonReadableChannelException канал не был открыт для чтения;
+     * @throws MalformedURLException       если указан неизвестный протокол;
+     * @throws FileNotFoundException       если файл существует, но является каталогом;
+     */
+    private static void downloadUsingNIO(String sourceToLink, String pathToFile) throws
+            NonReadableChannelException, MalformedURLException, FileNotFoundException {
+        URL url = new URL(sourceToLink);
+        try (ReadableByteChannel byteChannel = Channels.newChannel(url.openStream());
+             FileOutputStream stream = new FileOutputStream(pathToFile)) {
+
+            stream.getChannel().transferFrom(byteChannel, 0, Long.MAX_VALUE);
+            System.out.println("Скачивание файла " + pathToFile + " прошло успешно");
+
+        } catch (MalformedURLException ix) {
+            ix.printStackTrace();
+        } catch (FileNotFoundException nf) {
+            nf.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        } catch (NonReadableChannelException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
